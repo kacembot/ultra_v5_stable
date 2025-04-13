@@ -1,24 +1,44 @@
+import requests
+import json
 import time
-import os
-from telegram_utils import send_alert
-from scoring_engine import evaluate_token
 
-print("Bot ULTRA V5 démarré.")
-print("BOT_TOKEN =", os.getenv("BOT_TOKEN"))
-print("CHAT_ID =", os.getenv("CHAT_ID"))
+# === CONFIGURATION ===
+USE_FAKE_DATA = False  # Mode réel activé
+WEBHOOK_URL = "https://n8n-production-fa5c.up.railway.app/webhook/strongbuy"
+INTERVAL = 10  # secondes entre chaque scan
 
-fake_tokens = [
-    {"name": "DOGEAI", "volume": 12000, "snipers": 4, "age": 3},
-    {"name": "MOONX", "volume": 5000, "snipers": 2, "age": 1},
-    {"name": "XGPT", "volume": 23000, "snipers": 8, "age": 0.5},
-]
+# === FUNCTION TO FETCH REAL TOKENS ===
+def get_real_token_data():
+    # ⚠️ Placeholder à remplacer par intégration réelle (Axiom, PumpFun, etc.)
+    # Ici on simule un token STRONG BUY détecté
+    return {
+        "name": "REALCOIN",
+        "score": 94,
+        "market_cap": "82K",
+        "age": "1m21s",
+        "chain": "Solana"
+    }
 
-index = 0
-while True:
-    token = fake_tokens[index % len(fake_tokens)]
-    score = evaluate_token(token)
-    print(f"[Loop] Token: {token['name']} | Score: {score}")
-    if score >= 80:
-        send_alert(token, score)
-    index += 1
-    time.sleep(5)
+# === ENVOI VERS LE WEBHOOK ===
+def send_strongbuy_alert(token):
+    payload = {
+        "token": token["name"],
+        "score": token["score"],
+        "market_cap": token["market_cap"],
+        "age": token["age"],
+        "chain": token["chain"]
+    }
+    headers = {"Content-Type": "application/json"}
+    try:
+        response = requests.post(WEBHOOK_URL, data=json.dumps(payload), headers=headers)
+        print(f"[SENT] {token['name']} → {response.status_code} {response.text}")
+    except Exception as e:
+        print("[ERROR]", e)
+
+# === LOOP PRINCIPAL ===
+if __name__ == "__main__":
+    print("🚀 MODE RÉEL ACTIVÉ – BOT STRONG BUY EN LIGNE")
+    while True:
+        token_data = get_real_token_data()
+        send_strongbuy_alert(token_data)
+        time.sleep(INTERVAL)

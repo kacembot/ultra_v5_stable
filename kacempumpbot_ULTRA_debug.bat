@@ -1,3 +1,0 @@
-@echo off
-echo Lancement du bot KACEM ULTRA V5...
-cmd /k python main.py
